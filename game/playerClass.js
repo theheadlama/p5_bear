@@ -11,7 +11,9 @@ class Player {
 		this._priorMovement = "";
     this._movement = "";
     this._sprite = character;
+    //actual gamepad object is global
     this._gamePad = null;
+    this._gamePadIndex = null;
 
     this._directionalInput = {
       input: true,
@@ -30,63 +32,103 @@ class Player {
     };
 
   } // constructor
+
+  addGamePad(index) {
+    this._gamePad = new GamePad(index);
+    this._gamePadIndex = index;
+    console.log("gamepad established as ",this._gamePad);
+  }
   
   update() {
   //  this._directionalInput.input = false;
-    this.setMovement();
+      this.determineMove();
   }
 
-  setMovement() {
- 
-    if( this._directionalInput.up || this._directionalInput.down || this._directionalInput.left || this._directionalInput.right ) {
+  determineMove() {
+    // define bitwise flags
+    const FLAG_LEFT = 1;
+    const FLAG_RIGHT = 2;
+    const FLAG_UP = 4;
+    const FLAG_DOWN = 8;
+    const LATERAL = FLAG_LEFT | FLAG_RIGHT;
+    const VERTICAL = FLAG_UP | FLAG_DOWN;
+    // buttons can go here but not yet    
 
-        // todo: convert to acceleration vector
-        if( this._directionalInput.up === true ) {
-          if( this._lastDirectionalInput.down === true ) {
-            this._velocity.y = 0;
-            this._lastDirectionalInput.down = false;
-          }
-          this._lastDirectionalInput.up = true;
-          this._velocity.add(createVector(0,-this._impulse));
-        }
-        else if( this._directionalInput.down === true ) {
-          if( this._lastDirectionalInput.up === true ){
-            this._velocity.y = 0;
-            this._lastDirectionalInput.up = false;
-          }
-          this._lastDirectionalInput.down = true;
-          this._velocity.add(createVector(0,this._impulse));
-        }
-        // convert y axis to zero if there's no y
-        else {
-          this._velocity.y = 0;
-        }
-        if( this._directionalInput.left === true ) {
-          if( this._lastDirectionalInput.right === true ) {
-            this._velocity.x = 0;
-            this._lastDirectionalInput.right = false;
-          }
-          this._lastDirectionalInput.left = true;
-          this._velocity.add(createVector(-this._impulse,0));
-        }
-        else if( this._directionalInput.right === true ) {
-          if( this._lastDirectionalInput.left === true ) {
-            this._velocity.x = 0;
-            this._lastDirectionalInput.left = false;
-        }
-          this._lastDirectionalInput.right = true;
-          this._velocity.add(createVector(this._impulse,0));
-        }
-      // convert x axis to zero if there's no y input
-      else {
-          this._velocity.x = 0;
-      }
+    let movementFlag = 0;
+    if( this._gamePad != null ) {
+        movementFlag = this._gamePad.read();
     }
-    else {
+    else{
+      //move kb input here
+    }
+
+    if( movementFlag === 0 ) {
       this._velocity.mult(this._dampingFactor);
       // reduce to zero if near zero
       this._velocity.clampToZero();
     }
+
+    if( movementFlag & FLAG_LEFT ) {
+        this._velocity.add(createVector(-this._impulse,0));
+    }
+    if( movementFlag & FLAG_RIGHT ) {
+        this._velocity.add(createVector(this._impulse,0));
+    }
+    if( movementFlag & FLAG_UP ) {
+        this._velocity.add(createVector(0,-this._impulse));
+    }
+    if( movementFlag & FLAG_DOWN ) {
+        this._velocity.add(createVector(0,this._impulse));
+    }
+    if( movementFlag & LATERAL  === 0) {
+        this._velocity.x = 0;
+    }
+    if( movementFlag & VERTICAL === 0) {
+      this._velocity.y = 0;
+    }
+
+  
+      //   // todo: convert to acceleration vector
+      //   if( this._directionalInput.up === true ) {
+      //     if( this._lastDirectionalInput.down === true ) {
+      //       this._velocity.y = 0;
+      //       this._lastDirectionalInput.down = false;
+      //     }
+      //     this._lastDirectionalInput.up = true;
+      //     this._velocity.add(createVector(0,-this._impulse));
+      //   }
+      //   else if( this._directionalInput.down === true ) {
+      //     if( this._lastDirectionalInput.up === true ){
+      //       this._velocity.y = 0;
+      //       this._lastDirectionalInput.up = false;
+      //     }
+      //     this._lastDirectionalInput.down = true;
+      //     this._velocity.add(createVector(0,this._impulse));
+      //   }
+      //   // convert y axis to zero if there's no y
+      //   else {
+      //     this._velocity.y = 0;
+      //   }
+      //   if( this._directionalInput.left === true ) {
+      //     if( this._lastDirectionalInput.right === true ) {
+      //       this._velocity.x = 0;
+      //       this._lastDirectionalInput.right = false;
+      //     }
+      //     this._lastDirectionalInput.left = true;
+      //     this._velocity.add(createVector(-this._impulse,0));
+      //   }
+      //   else if( this._directionalInput.right === true ) {
+      //     if( this._lastDirectionalInput.left === true ) {
+      //       this._velocity.x = 0;
+      //       this._lastDirectionalInput.left = false;
+      //   }
+      //     this._lastDirectionalInput.right = true;
+      //     this._velocity.add(createVector(this._impulse,0));
+      //   }
+      // // convert x axis to zero if there's no y input
+      // else {
+      // }
+    
 
   }
   

@@ -1,55 +1,43 @@
 class GamePad {
     constructor(index) {
-        this._gamePadIndex = index;
-        this._deadZone = 0.15;
-        // constants for input flags, in constructor for convenience
-        this._FLAG_LEFT = 1;
-        this._FLAG_RIGHT = 2;
-        this._FLAG_UP = 4;
-        this._FLAG_DOWN = 8;
-        // buttons can go here but not yet
-
+        this._index = index;
+        this._DEADZONE = 0.3;
+        this._ANGLECONSTRAINT = 0.3;
     }
 
     read() {
+        // define bitwise flags
+        const FLAG_LEFT = 1;
+        const FLAG_RIGHT = 2;
+        const FLAG_UP = 4;
+        const FLAG_DOWN = 8;
+        // buttons can go here but not yet
+
         // re-fetch state per frame
         const gp = navigator.getGamepads()[this._index];
         //
-        let input = 0;
-        if( Math.abs(gp.axes[0]) > deadZone || Math.abs(gp.axes[1] > deadZone)) {
-            if( gp.axes[0] < 0 ) {
-                player1._directionalInput.left = true;        
+        let inputFlags = 0;
+        if( Math.abs(gp.axes[0]) > this._DEADZONE || Math.abs(gp.axes[1] > this._DEADZONE)) {
+            if(gp.axes[0] < 0 - this._ANGLECONSTRAINT ) {
+                inputFlags |= FLAG_LEFT;
             }
-            else {
-            player1._directionalInput.left = false;
+            if( gp.axes[0] > 0 + this._ANGLECONSTRAINT ) {
+                inputFlags |= FLAG_RIGHT;        
             }
-            if( gp.axes[0] > 0 ) {
-                player1._directionalInput.right = true;        
+            if( gp.axes[1] < 0 - this._ANGLECONSTRAINT ) {
+                inputFlags |= FLAG_UP;        
             }
-            else {
-            player1._directionalInput.right = false;
+            if( gp.axes[1] > 0 + this._ANGLECONSTRAINT) {
+                inputFlags |= FLAG_DOWN;        
             }
-            if( gp.axes[1] < 0 ) {
-                player1._directionalInput.up = true;        
-            }
-            else {
-            player1._directionalInput.up = false;
-            }
-            if( gp.axes[1] > 0 ) {
-                player1._directionalInput.down = true;
-            }
-            else {
-            player1._directionalInput.down = false;
-            }
+        }
+
+         return inputFlags;
 
       }
 
-
-
-
-    }
+}
 
 
 
     
-}

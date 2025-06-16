@@ -20,6 +20,7 @@ Gamepad API Event Listeners
 window.addEventListener("gamepadconnected", (event) => {
   console.log("Gamepad connected", event.gamepad);
   connectedGamepad = event.gamepad; // assign the connected gamepad to var
+  player1.addGamePad(0);
 });
 
 window.addEventListener("gamepaddisconnected",(event) => {
@@ -54,8 +55,6 @@ function draw() {
 
   background(bg);
 
-
-  readGamepad();
   // gamepad takes priority
   if( !connectedGamepad ) {
     readKB();
@@ -71,67 +70,13 @@ function draw() {
 
  }
 
+// -- gamepad input handling -- //
+// -- helper function -- //
+// function readGamepad(index) {
 
-// -- gamepad input handling --//
-function readGamepad() {
 
-  //poll for gamepad state
-  const gamepads = navigator.getGamepads();
 
-  // Check for active gamepad, or try to get one
-  if(!connectedGamepad) {
-    for(let i = 0; i < gamepads.length; i++ ) {
-      if(gamepads[i]) {
-        connectedGamepad = gamepads[i];
-        console.log("connected gamepad during play: ", connectedGamepad);
-        break;
-      }
-    }
-  }
-
-  if( connectedGamepad ) {
-    // re-fetch state per frame
-    const gp = navigator.getGamepads()[connectedGamepad.index];
-    if(gp) {
- 
-      // -- analog sticks -- (read as digital outside of dead zone)
-      const deadZone = 0.15;
-
-      // read left stick
-      if( Math.abs(gp.axes[0]) > deadZone || Math.abs(gp.axes[1] > deadZone)) {
-        if( gp.axes[0] < 0 ) {
-	      	player1._directionalInput.left = true;        
-        }
-        else {
-          player1._directionalInput.left = false;
-        }
-        if( gp.axes[0] > 0 ) {
-	      	player1._directionalInput.right = true;        
-        }
-        else {
-          player1._directionalInput.right = false;
-        }
-        if( gp.axes[1] < 0 ) {
-	      	player1._directionalInput.up = true;        
-        }
-        else {
-          player1._directionalInput.up = false;
-        }
-        if( gp.axes[1] > 0 ) {
-	      	player1._directionalInput.down = true;
-        }
-        else {
-          player1._directionalInput.down = false;
-        }
-
-      }
-      else {
-        player1._directionalInput.up = player1._directionalInput.down = player1._directionalInput.left = player1._directionalInput.right = false;
-      }
-    }
-  }
-
-}
+// }
 
 function readKB() {
   if (keyIsDown(87)) {
